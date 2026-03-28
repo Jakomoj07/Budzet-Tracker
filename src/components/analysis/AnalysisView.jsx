@@ -61,7 +61,7 @@ export default function AnalysisView({ data, waluta }) {
     const najlepszMiesiacPrzychody = daneTrend.reduce((max, m) => m.przychody > max.przychody ? m : max, daneTrend[0])?.miesiac || 'N/A'
     const najgorszyMiesiacWydatki = daneTrend.reduce((max, m) => m.wydatki > max.wydatki ? m : max, daneTrend[0])?.miesiac || 'N/A'
 
-    const kategorieArr = Object.entries(kategorieMapa)
+    const kategoriePosortowane = Object.entries(kategorieMapa)
       .map(([nazwa, wartosc]) => ({ nazwa, wartosc }))
       .sort((a, b) => b.wartosc - a.wartosc)
 
@@ -69,9 +69,9 @@ export default function AnalysisView({ data, waluta }) {
     let trend = 'N/A'
     if (liczbaMiesiecy >= 3) {
       const ostatnie3 = daneTrend.slice(-3)
-      const sredSredniosci = ostatnie3.reduce((s, m) => s + m.doWydania, 0) / 3
+      const srednieSaldoOstatnieTrzy = ostatnie3.reduce((s, m) => s + m.doWydania, 0) / 3
       trend =
-        sredSredniosci > 500 ? 'rosnący' : sredSredniosci < -500 ? 'malejący' : 'stabilny'
+        srednieSaldoOstatnieTrzy > 500 ? 'rosnący' : srednieSaldoOstatnieTrzy < -500 ? 'malejący' : 'stabilny'
     }
 
     const realizacja = liczbaMiesiecy > 0 && lacznePrzychody > 0
@@ -84,15 +84,15 @@ export default function AnalysisView({ data, waluta }) {
         sredniaPrzychody, srednieWydatki, sredniaOszczednosci, sredniaStopaOszczednosci,
         najlepszMiesiacPrzychody, najgorszyMiesiacWydatki, trend, realizacja
       },
-      kategorie: kategorieArr
+      kategorie: kategoriePosortowane
     }
   }, [data])
 
   if (obliczenia.daneGlobalne.liczbaMiesiecy === 0) {
     return (
-      <div className="pt-24 pb-8 px-6">
+      <div className="widok-tresc">
         <h1 className="text-5xl font-bold text-budzet-textPrimary mb-4">Analiza Ogólna</h1>
-        <div className="panel p-6">
+        <div className="karta p-6">
           <p className="text-budzet-textMuted">Brak danych do analizy. Utwórz nowy miesiąc aby rozpocząć.</p>
         </div>
       </div>
@@ -102,23 +102,23 @@ export default function AnalysisView({ data, waluta }) {
   const g = obliczenia.daneGlobalne
 
   return (
-    <div className="pt-24 pb-8 px-6 max-w-7xl mx-auto">
+    <div className="widok-tresc-szeroki">
       <h1 className="text-5xl font-bold text-budzet-textPrimary mb-2">Analiza Ogólna</h1>
       <p className="text-budzet-textMuted mb-8">Statystyki ze wszystkich zapisanych miesięcy</p>
 
       <div className="grid grid-cols-4 gap-3 mb-6">
-        <div className="stat-card"><div className="stat-card-label">ŁĄCZNE PRZYCHODY</div><div className="stat-card-value positive">{formatWaluta(g.lacznePrzychody, waluta)}</div></div>
-        <div className="stat-card"><div className="stat-card-label">ŁĄCZNE WYDATKI</div><div className="stat-card-value negative">{formatWaluta(g.laczneWydatki, waluta)}</div></div>
-        <div className="stat-card"><div className="stat-card-label">ŁĄCZNE OSZCZĘDNOŚCI</div><div className="stat-card-value">{formatWaluta(g.laczneOszczednosci, waluta)}</div></div>
-        <div className="stat-card"><div className="stat-card-label">LICZBA MIESIĘCY</div><div className="stat-card-value">{g.liczbaMiesiecy}</div></div>
-        <div className="stat-card"><div className="stat-card-label">ŚR. PRZYCHODY/MC</div><div className="stat-card-value positive">{formatWaluta(g.sredniaPrzychody, waluta)}</div></div>
-        <div className="stat-card"><div className="stat-card-label">ŚR. WYDATKI/MC</div><div className="stat-card-value negative">{formatWaluta(g.srednieWydatki, waluta)}</div></div>
-        <div className="stat-card"><div className="stat-card-label">ŚR. OSZCZĘDNOŚCI/MC</div><div className="stat-card-value">{formatWaluta(g.sredniaOszczednosci, waluta)}</div></div>
-        <div className={`stat-card ${g.sredniaStopaOszczednosci > 10 ? 'positive' : g.sredniaStopaOszczednosci < 0 ? 'negative' : ''}`}><div className="stat-card-label">ŚR. STOPA OSZCZĘDNOŚCI</div><div className="stat-card-value">{g.sredniaStopaOszczednosci.toFixed(1)}%</div></div>
+        <div className="karta-stat"><div className="karta-stat-etykieta">ŁĄCZNE PRZYCHODY</div><div className="karta-stat-wartosc dodatnie">{formatWaluta(g.lacznePrzychody, waluta)}</div></div>
+        <div className="karta-stat"><div className="karta-stat-etykieta">ŁĄCZNE WYDATKI</div><div className="karta-stat-wartosc ujemne">{formatWaluta(g.laczneWydatki, waluta)}</div></div>
+        <div className="karta-stat"><div className="karta-stat-etykieta">ŁĄCZNE OSZCZĘDNOŚCI</div><div className="karta-stat-wartosc text-budzet-textPrimary">{formatWaluta(g.laczneOszczednosci, waluta)}</div></div>
+        <div className="karta-stat"><div className="karta-stat-etykieta">LICZBA MIESIĘCY</div><div className="karta-stat-wartosc text-budzet-textPrimary">{g.liczbaMiesiecy}</div></div>
+        <div className="karta-stat"><div className="karta-stat-etykieta">ŚR. PRZYCHODY/MC</div><div className="karta-stat-wartosc dodatnie">{formatWaluta(g.sredniaPrzychody, waluta)}</div></div>
+        <div className="karta-stat"><div className="karta-stat-etykieta">ŚR. WYDATKI/MC</div><div className="karta-stat-wartosc ujemne">{formatWaluta(g.srednieWydatki, waluta)}</div></div>
+        <div className="karta-stat"><div className="karta-stat-etykieta">ŚR. OSZCZĘDNOŚCI/MC</div><div className="karta-stat-wartosc text-budzet-textPrimary">{formatWaluta(g.sredniaOszczednosci, waluta)}</div></div>
+        <div className="karta-stat"><div className="karta-stat-etykieta">ŚR. STOPA OSZCZĘDNOŚCI</div><div className={`karta-stat-wartosc ${g.sredniaStopaOszczednosci > 10 ? 'dodatnie' : g.sredniaStopaOszczednosci < 0 ? 'ujemne' : 'text-budzet-textPrimary'}`}>{g.sredniaStopaOszczednosci.toFixed(1)}%</div></div>
       </div>
 
-      <div className="panel mb-6">
-        <div className="panel-header">TREND PRZYCHODÓW VS WYDATKÓW</div>
+      <div className="karta mb-6">
+        <div className="karta-naglowek">TREND PRZYCHODÓW VS WYDATKÓW</div>
         <ResponsiveContainer width="100%" height={260}>
           <AreaChart data={obliczenia.daneTrend} margin={{ top: 10, right: 10, left: 0, bottom: 50 }}>
             <CartesianGrid stroke="#E8DFD0" /><XAxis dataKey="miesiac" angle={-30} textAnchor="end" height={50} tick={{ fontSize: 10 }} />
@@ -131,8 +131,8 @@ export default function AnalysisView({ data, waluta }) {
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="panel">
-          <div className="panel-header">MIESIĘCZNE SALDO</div>
+        <div className="karta">
+          <div className="karta-naglowek">MIESIĘCZNE SALDO</div>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={obliczenia.daneTrend} margin={{ top: 10, right: 10, left: 0, bottom: 50 }}>
               <CartesianGrid stroke="#E8DFD0" /><XAxis dataKey="miesiac" angle={-30} textAnchor="end" height={50} tick={{ fontSize: 10 }} />
@@ -141,16 +141,16 @@ export default function AnalysisView({ data, waluta }) {
             </BarChart>
           </ResponsiveContainer>
         </div>
-        <div className="panel"><div className="panel-header">PORÓWNANIE MIESIĘCY</div>
-          <table className="table-base text-[11px]"><thead><tr><th>MIESIĄC</th><th>PRZYCHODY</th><th>WYDATKI</th><th>OSZCZĘDNOŚCI</th><th>DO WYDANIA</th><th>STOPA %</th></tr></thead>
-            <tbody>{obliczenia.daneTrend.map((m, i) => {const stopa = m.przychody > 0 ? (m.oszczednosci / m.przychody * 100) : 0; return <tr key={i}><td className="text-[9px]">{m.miesiac}</td><td>{formatWaluta(m.przychody, waluta)}</td><td>{formatWaluta(m.wydatki, waluta)}</td><td>{formatWaluta(m.oszczednosci, waluta)}</td><td className={m.doWydania >= 0 ? 'positive' : 'negative'}>{formatWaluta(m.doWydania, waluta)}</td><td>{stopa.toFixed(1)}%</td></tr>})}</tbody>
+        <div className="karta"><div className="karta-naglowek">PORÓWNANIE MIESIĘCY</div>
+          <table className="tabela text-[11px]"><thead><tr><th>MIESIĄC</th><th>PRZYCHODY</th><th>WYDATKI</th><th>OSZCZĘDNOŚCI</th><th>DO WYDANIA</th><th>STOPA %</th></tr></thead>
+            <tbody>{obliczenia.daneTrend.map((m, i) => {const stopa = m.przychody > 0 ? (m.oszczednosci / m.przychody * 100) : 0; return <tr key={i}><td className="text-[9px]">{m.miesiac}</td><td>{formatWaluta(m.przychody, waluta)}</td><td>{formatWaluta(m.wydatki, waluta)}</td><td>{formatWaluta(m.oszczednosci, waluta)}</td><td className={m.doWydania >= 0 ? 'dodatnie' : 'ujemne'}>{formatWaluta(m.doWydania, waluta)}</td><td>{stopa.toFixed(1)}%</td></tr>})}</tbody>
             <tfoot><tr><td className="font-bold">ŚREDNIA</td><td>{formatWaluta(g.sredniaPrzychody, waluta)}</td><td>{formatWaluta(g.srednieWydatki, waluta)}</td><td>{formatWaluta(g.sredniaOszczednosci, waluta)}</td><td>{formatWaluta(g.sredniaPrzychody - g.srednieWydatki - g.sredniaOszczednosci, waluta)}</td><td>{g.sredniaStopaOszczednosci.toFixed(1)}%</td></tr></tfoot>
           </table>
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div className="panel"><div className="panel-header">KATEGORIE WYDATKÓW</div>
+        <div className="karta"><div className="karta-naglowek">KATEGORIE WYDATKÓW</div>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={obliczenia.kategorie} layout="vertical" margin={{ top: 10, right: 10, left: 120, bottom: 10 }}>
               <CartesianGrid stroke="#E8DFD0" /><XAxis type="number" tick={{ fontSize: 10 }} /><YAxis dataKey="nazwa" type="category" width={115} tick={{ fontSize: 10 }} />
@@ -159,11 +159,11 @@ export default function AnalysisView({ data, waluta }) {
           </ResponsiveContainer>
         </div>
         <div className="grid grid-cols-1 gap-3">
-          <div className="stat-card"><div className="stat-card-label">NAJLEPSZY MIESIĄC</div><div className="stat-card-value positive text-sm">{g.najlepszMiesiacPrzychody}</div></div>
-          <div className="stat-card"><div className="stat-card-label">NAJWYŻSZE WYDATKI</div><div className="stat-card-value negative text-sm">{g.najgorszyMiesiacWydatki}</div></div>
-          <div className="stat-card"><div className="stat-card-label">TREND SALDA</div><div className={`stat-card-value text-sm ${g.trend === 'rosnący' ? 'positive' : g.trend === 'malejący' ? 'negative' : ''}`}>{g.trend === 'rosnący' ? '📈 Rosnący' : g.trend === 'malejący' ? '📉 Malejący' : '➡️ Stabilny'}</div></div>
-          <div className="stat-card"><div className="stat-card-label">ŁĄCZNE OSZCZĘDZENIA</div><div className="stat-card-value positive">{formatWaluta(g.laczneOszczednosci, waluta)}</div></div>
-          <div className="stat-card"><div className="stat-card-label">REALIZACJA BUDŻETU</div><div className={`stat-card-value ${g.realizacja > 0 ? 'positive' : 'negative'}`}>{g.realizacja.toFixed(1)}%</div></div>
+          <div className="karta-stat"><div className="karta-stat-etykieta">NAJLEPSZY MIESIĄC</div><div className="karta-stat-wartosc dodatnie text-sm">{g.najlepszMiesiacPrzychody}</div></div>
+          <div className="karta-stat"><div className="karta-stat-etykieta">NAJWYŻSZE WYDATKI</div><div className="karta-stat-wartosc ujemne text-sm">{g.najgorszyMiesiacWydatki}</div></div>
+          <div className="karta-stat"><div className="karta-stat-etykieta">TREND SALDA</div><div className={`karta-stat-wartosc text-sm ${g.trend === 'rosnący' ? 'dodatnie' : g.trend === 'malejący' ? 'ujemne' : 'text-budzet-textPrimary'}`}>{g.trend === 'rosnący' ? '📈 Rosnący' : g.trend === 'malejący' ? '📉 Malejący' : '➡️ Stabilny'}</div></div>
+          <div className="karta-stat"><div className="karta-stat-etykieta">ŁĄCZNE OSZCZĘDZENIA</div><div className="karta-stat-wartosc dodatnie">{formatWaluta(g.laczneOszczednosci, waluta)}</div></div>
+          <div className="karta-stat"><div className="karta-stat-etykieta">REALIZACJA BUDŻETU</div><div className={`karta-stat-wartosc ${g.realizacja > 0 ? 'dodatnie' : 'ujemne'}`}>{g.realizacja.toFixed(1)}%</div></div>
         </div>
       </div>
     </div>

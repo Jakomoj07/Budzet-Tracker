@@ -15,8 +15,7 @@ function pustyMiesiac() {
   }
 }
 
-// Bierzemy "szkielet" kategorii (nazwa + id) z istniejących danych.
-function getDaneNazwKategorii(dane) {
+function szkieletKategorii(dane) {
   return {
     przychody: dane.przychody.map(p => ({ nazwa: p.nazwa, id: p.id })),
     rachunki: dane.rachunki.map(r => ({ nazwa: r.nazwa, id: r.id })),
@@ -27,11 +26,7 @@ function getDaneNazwKategorii(dane) {
   }
 }
 
-// Tworzymy nowy miesiąc na podstawie list kategorii:
-// - wartości liczbowe startują od 0,
-// - pola tekstowe/datowe startują jako puste,
-// - flagi (checkboxy) ustawiamy na domyślne wartości.
-function wypelniKategoriami(puste, kategorie) {
+function wypelnijKategoriami(puste, kategorie) {
   return {
     przychody: kategorie.przychody.map(k => ({
       id: k.id,
@@ -84,38 +79,37 @@ function wypelniKategoriami(puste, kategorie) {
   }
 }
 
-export default function useBudgetData() {
+export default function useDaneBudzetu() {
   const [data, setData] = useState(() => {
     try {
-      const stored = localStorage.getItem('budzet_tracker_v1')
-      if (stored) {
-        return JSON.parse(stored)
+      const zapisane = localStorage.getItem('budzet_tracker_v1')
+      if (zapisane) {
+        return JSON.parse(zapisane)
       }
-    } catch (e) {
-      console.error('Błąd przy ładowaniu danych z localStorage:', e)
+    } catch (blad) {
+      console.error('Błąd przy ładowaniu danych z localStorage:', blad)
     }
     return { '2025': { 'Styczeń': getSampleData() } }
   })
 
   const [aktywnyRok, setAktywnyRok] = useState('2025')
   const [aktywnyMiesiac, setAktywnyMiesiac] = useState('Styczeń')
-  const debounceTimeoutRef = useRef(null)
+  const timeoutZapisuRef = useRef(null)
 
   const aktywnyMiesiacDane = data[aktywnyRok]?.[aktywnyMiesiac] || pustyMiesiac()
 
-  // Auto-save z debounce
   useEffect(() => {
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current)
+    if (timeoutZapisuRef.current) {
+      clearTimeout(timeoutZapisuRef.current)
     }
 
-    debounceTimeoutRef.current = setTimeout(() => {
+    timeoutZapisuRef.current = setTimeout(() => {
       localStorage.setItem('budzet_tracker_v1', JSON.stringify(data))
     }, 500)
 
     return () => {
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current)
+      if (timeoutZapisuRef.current) {
+        clearTimeout(timeoutZapisuRef.current)
       }
     }
   }, [data])
@@ -125,14 +119,14 @@ export default function useBudgetData() {
     setAktywnyMiesiac(miesiac)
   }
 
-  const aktualizujSekcje = (sekcjaNazwa, danasekcji) => {
+  const aktualizujSekcje = (nazwaSekcji, daneSekcji) => {
     setData(prev => ({
       ...prev,
       [aktywnyRok]: {
         ...prev[aktywnyRok],
         [aktywnyMiesiac]: {
           ...prev[aktywnyRok]?.[aktywnyMiesiac],
-          [sekcjaNazwa]: danasekcji
+          [nazwaSekcji]: daneSekcji
         }
       }
     }))
@@ -143,10 +137,9 @@ export default function useBudgetData() {
     const nazwa = MIESIACE[indeks - 1]
 
     if (!nazwa) return
-    // Jeśli kopiujKategorie=true, to przenosimy nazwy i id (szkielet),
-    // a liczby zerujemy. Dzięki temu nowe miesiące wyglądają spójnie.
+
     const noweDane = kopiujKategorie && data[numerRoku]?.[MIESIACE[0]]
-      ? wypelniKategoriami(pustyMiesiac(), getDaneNazwKategorii(data[numerRoku][MIESIACE[0]]))
+      ? wypelnijKategoriami(pustyMiesiac(), szkieletKategorii(data[numerRoku][MIESIACE[0]]))
       : pustyMiesiac()
 
     setData(prev => ({
@@ -159,17 +152,17 @@ export default function useBudgetData() {
   }
 
   const listaMiesiecy = () => {
-    const result = []
+    const wynik = []
     const lata = Object.keys(data).sort()
-    
+
     lata.forEach(rok => {
       const miesiace = Object.keys(data[rok])
       miesiace.forEach(miesiac => {
-        result.push({ rok, miesiac })
+        wynik.push({ rok, miesiac })
       })
     })
 
-    return result.sort((a, b) => {
+    return wynik.sort((a, b) => {
       const rokA = Number(a.rok)
       const rokB = Number(b.rok)
       if (rokA !== rokB) return rokA - rokB

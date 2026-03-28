@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { generateId } from '../../utils/uuid'
+import { generujId } from '../../utils/uuid'
 import { formatWaluta } from '../../utils/waluty'
 
 export default function SectionPanel({
@@ -51,7 +51,7 @@ export default function SectionPanel({
       // TAB służy do przechodzenia między kolejnymi edytowalnymi komórkami.
       e.preventDefault()
       saveEdit(wierszeId, klucz)
-      const edytowalne = kolumny.filter(k => !k.readOnly)
+      const edytowalne = kolumny.filter(k => !k.tylkoOdczyt)
       const idx = edytowalne.findIndex(k => k.klucz === klucz)
       const kierunek = e.shiftKey ? -1 : 1
       const nastepnaKol = edytowalne[idx + kierunek]
@@ -70,9 +70,9 @@ export default function SectionPanel({
     }
   }
 
-  const addRow = () => {
+  const dodajWiersz = () => {
     const nowyWiersz = {
-      id: generateId(),
+      id: generujId(),
       ...kolumny.reduce((acc, k) => {
         if (k.typ === 'liczba') acc[k.klucz] = 0
         else acc[k.klucz] = ''
@@ -83,7 +83,7 @@ export default function SectionPanel({
     onZmiana([...wiersze, nowyWiersz])
   }
 
-  const deleteRow = (id) => {
+  const usunWiersz = (id) => {
     if (window.confirm('Usunąć wiersz')) {
       onZmiana(wiersze.filter(w => w.id !== id))
     }
@@ -99,11 +99,11 @@ export default function SectionPanel({
     onZmiana(noweWiersze)
   }
 
-  const calculateSuma = (klucz) => {
-    return wiersze.reduce((sum, w) => sum + (Number(w[klucz]) || 0), 0)
+  const sumaKolumny = (klucz) => {
+    return wiersze.reduce((suma, w) => suma + (Number(w[klucz]) || 0), 0)
   }
 
-  const getSzerokoscTH = (klucz) => {
+  const szerokoscNaglowkaKolumny = (klucz) => {
     switch(klucz) {
       case 'nazwa':
       case 'bank':
@@ -140,11 +140,11 @@ export default function SectionPanel({
     const isEditing = edytujKomorke?.wierszeId === wiersz.id && edytujKomorke?.klucz === kolumna.klucz
     const wartosc = wiersz[kolumna.klucz]
 
-    // Pola obliczane (readOnly)
+    // Pola wyliczane (tylko odczyt w UI)
     if (kolumna.klucz === 'roznica') {
       const roznica = (wiersz.rzeczywiste || 0) - (wiersz.planowane || 0)
       return (
-        <td key={key} className={`border border-budzet-border px-0 py-0 align-middle h-[32px] cursor-default bg-budzet-rowAlt/50 ${roznica >= 0 ? 'positive' : 'negative'}`}>
+        <td key={key} className={`border border-budzet-border px-0 py-0 align-middle h-[32px] cursor-default bg-budzet-rowAlt/50 ${roznica >= 0 ? 'dodatnie' : 'ujemne'}`}>
           <span className="block w-full text-right whitespace-nowrap px-1.5 py-1.5 cursor-default text-xs rounded">
             {formatWaluta(roznica, waluta)}
           </span>
@@ -163,7 +163,7 @@ export default function SectionPanel({
       )
     }
 
-    if (kolumna.readOnly) {
+    if (kolumna.tylkoOdczyt) {
       return (
         <td key={key} className="border border-budzet-border px-0 py-0 align-middle h-[32px] cursor-default bg-budzet-rowAlt/50">
           <span className="block w-full text-right whitespace-nowrap px-1.5 py-1.5 cursor-default text-xs rounded">
@@ -183,7 +183,7 @@ export default function SectionPanel({
             onChange={e => setTempValue(e.target.value)}
             onBlur={() => saveEdit(wiersz.id, kolumna.klucz)}
             onKeyDown={e => handleKeyDown(e, wiersz.id, kolumna.klucz)}
-            className={kolumna.typ === 'liczba' ? 'td-input text-right' : 'td-input'}
+            className={kolumna.typ === 'liczba' ? 'wejscie-komorki text-right' : 'wejscie-komorki'}
             placeholder={kolumna.typ === 'liczba' ? '0' : '—'}
             data-cell-id={`${wiersz.id}-${kolumna.klucz}`}
             style={{ minWidth: 0 }}
@@ -206,11 +206,11 @@ export default function SectionPanel({
   }
 
   return (
-    <div className="panel">
-      <div className="panel-header flex justify-between items-center">
+    <div className="karta">
+      <div className="karta-naglowek flex justify-between items-center">
         <span>{tytul}</span>
         <button
-          onClick={addRow}
+          onClick={dodajWiersz}
           className="text-white bg-budzet-accent hover:bg-budzet-accentDark px-2 py-0.5 rounded text-xs font-bold"
         >
           +
@@ -222,7 +222,7 @@ export default function SectionPanel({
             <tr>
               {pokazCheckbox && <th className="w-[32px] min-w-[32px] px-1.5 py-1.5 text-left font-semibold uppercase tracking-wider text-[10px] border border-budzet-border whitespace-nowrap">✓</th>}
               {kolumny.map(k => (
-                <th key={k.klucz} className={`${getSzerokoscTH(k.klucz)} px-1.5 py-1.5 text-left font-semibold uppercase tracking-wider text-[10px] border border-budzet-border whitespace-nowrap`}>
+                <th key={k.klucz} className={`${szerokoscNaglowkaKolumny(k.klucz)} px-1.5 py-1.5 text-left font-semibold uppercase tracking-wider text-[10px] border border-budzet-border whitespace-nowrap`}>
                   {k.naglowek}
                 </th>
               ))}
@@ -233,7 +233,7 @@ export default function SectionPanel({
           {wiersze.map((wiersz) => (
             <tr
               key={wiersz.id}
-              className={`h-[32px] ${wiersz.opłacone ? 'strikethrough' : ''}`}
+              className={`h-[32px] ${wiersz.opłacone ? 'przekreslenie' : ''}`}
             >
               {pokazCheckbox && (
                 <td className="text-center align-middle border border-budzet-border px-0 py-0 w-[32px] min-w-[32px]">
@@ -245,7 +245,7 @@ export default function SectionPanel({
                 </td>
               )}
               {kolumny.map(kolumna => renderCell(wiersz, kolumna))}
-              <td className="text-center align-middle border border-budzet-border px-0 py-0 cursor-pointer text-budzet-negative hover:font-bold w-[28px] min-w-[28px]" onClick={() => deleteRow(wiersz.id)}>
+              <td className="text-center align-middle border border-budzet-border px-0 py-0 cursor-pointer text-budzet-negative hover:font-bold w-[28px] min-w-[28px]" onClick={() => usunWiersz(wiersz.id)}>
                 ×
               </td>
             </tr>
@@ -256,11 +256,11 @@ export default function SectionPanel({
             {pokazCheckbox && <td className="px-1.5 py-2 border border-budzet-border text-budzet-textHeader font-bold text-xs bg-budzet-tableHeader w-[32px] min-w-[32px]"></td>}
             {kolumny.map((kol, i) => (
               <td key={kol.klucz}
-                  className={`px-1.5 py-2 border border-budzet-border text-budzet-textHeader font-bold text-xs bg-budzet-tableHeader ${getSzerokoscTH(kol.klucz)}`}>
+                  className={`px-1.5 py-2 border border-budzet-border text-budzet-textHeader font-bold text-xs bg-budzet-tableHeader ${szerokoscNaglowkaKolumny(kol.klucz)}`}>
                 {i === 0
                   ? 'SUMA'
                   : kluczeDoSumy.includes(kol.klucz)
-                    ? formatWaluta(calculateSuma(kol.klucz), waluta)
+                    ? formatWaluta(sumaKolumny(kol.klucz), waluta)
                     : ''
                 }
               </td>

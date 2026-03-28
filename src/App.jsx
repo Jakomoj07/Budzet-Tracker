@@ -3,8 +3,8 @@ import Navbar from './components/Navbar'
 import MonthlyView from './components/monthly/MonthlyView'
 import AnalysisView from './components/analysis/AnalysisView'
 import HistoryView from './components/history/HistoryView'
-import useBudgetData from './hooks/useBudgetData'
-import useCalculations from './hooks/useCalculations'
+import useDaneBudzetu from './hooks/useDaneBudzetu'
+import useObliczenia from './hooks/useObliczenia'
 import useWaluta from './hooks/useWaluta'
 import { eksportujDoCSV } from './utils/csvExport'
 import { eksportujDoPDF } from './utils/pdfExport'
@@ -12,10 +12,10 @@ import { eksportujDoPDF } from './utils/pdfExport'
 export default function App() {
   const [aktywnaZakladka, setAktywnaZakladka] = useState(0)
 
-  const budzetData = useBudgetData()
+  const budzetData = useDaneBudzetu()
   const { waluta, setWaluta } = useWaluta()
 
-  const obliczenia = useCalculations(
+  const obliczenia = useObliczenia(
     budzetData.aktywnyMiesiacDane,
     budzetData.aktywnyRok,
     budzetData.aktywnyMiesiac

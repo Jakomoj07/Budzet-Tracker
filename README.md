@@ -3,12 +3,6 @@
 Aplikacja do śledzenia miesięcznego budżetu osobistego zbudowana w React 18 + Vite.
 Cały interfejs w języku polskim. Dane przechowywane lokalnie w przeglądarce (localStorage) — bez backendu, bez rejestracji.
 
-**Lokalizacja projektu:**
-```
-C:\Users\jakom\Documents\AI projects\budzet-tracker
-```
-
----
 
 ## ✨ Funkcjonalności
 
@@ -191,8 +185,10 @@ budzet-tracker/
     ├── main.jsx                      # Punkt wejścia React (StrictMode + createRoot)
     ├── App.jsx                       # Root — routing zakładek, przekazywanie danych
     ├── index.css                     # Dyrektywy Tailwind + klasy komponentów (@layer)
+    ├── constants/
+    │   └── aplikacja.js              # Wspólne stałe UI (np. nazwy zakładek, kody walut)
     ├── utils/
-    │   ├── uuid.js                   # generateId() — unikalne ID dla wierszy
+    │   ├── uuid.js                   # generujId() — unikalne ID dla wierszy
     │   ├── polishMonths.js           # MIESIACE[], konwersje, getDniWMiesiacu()
     │   ├── waluty.js                 # WALUTY{}, formatWaluta() — kursy i formatowanie
     │   ├── sampleData.js             # getSampleData() — dane przykładowe Styczeń 2025
@@ -200,11 +196,12 @@ budzet-tracker/
     │   └── pdfExport.js              # eksportujDoPDF() — generowanie PDF przez jsPDF
     ├── hooks/
     │   ├── useWaluta.js              # Stan wybranej waluty + zapis w localStorage
-    │   ├── useBudgetData.js          # Główny stan aplikacji, CRUD, localStorage
-    │   └── useCalculations.js        # Obliczenia finansowe, dane do wykresów (useMemo)
+    │   ├── useDaneBudzetu.js         # Główny stan aplikacji, CRUD, localStorage
+    │   └── useObliczenia.js          # Obliczenia finansowe, dane do wykresów (useMemo)
     └── components/
         ├── Navbar.jsx                # Nawigacja górna: 2 paski, waluty, eksport, zakładki
         ├── monthly/
+        │   ├── kolumnySekcji.js        # Definicje kolumn tabel (8 sekcji)
         │   ├── MonthlyView.jsx       # Główny układ widoku miesięcznego
         │   ├── SummaryCards.jsx      # 5 kart z kluczowymi wartościami
         │   ├── FinancialOverview.jsx # Tabela przeglądu + Środki Pozostałe

@@ -3,16 +3,16 @@ import YearAccordion from './YearAccordion'
 export default function HistoryView({ data, ustawAktywny, ustawZakladke, waluta }) {
   const lata = Object.keys(data).sort((a, b) => Number(b) - Number(a))
 
-  const handleOtworzMiesiac = (rok, miesiac) => {
+  const otworzMiesiac = (rok, miesiac) => {
     ustawAktywny(rok, miesiac)
     ustawZakladke(0)
   }
 
   if (lata.length === 0) {
     return (
-      <div className="pt-24 pb-8 px-6">
+      <div className="widok-tresc">
         <h1 className="text-5xl font-bold text-budzet-textPrimary mb-4">Historia</h1>
-        <div className="panel p-6">
+        <div className="karta p-6">
           <p className="text-budzet-textMuted">Brak zapisanych miesięcy. Utwórz nowy miesiąc aby rozpocząć.</p>
         </div>
       </div>
@@ -20,14 +20,14 @@ export default function HistoryView({ data, ustawAktywny, ustawZakladke, waluta 
   }
 
   return (
-    <div className="pt-24 pb-8 px-6 max-w-4xl mx-auto">
+    <div className="widok-tresc-waski">
       <h1 className="text-5xl font-bold text-budzet-textPrimary mb-8">Historia</h1>
       {lata.map(rok => (
         <YearAccordion
           key={rok}
           rok={rok}
           daneRoku={data[rok] || {}}
-          onOtworzMiesiac={handleOtworzMiesiac}
+          onOtworzMiesiac={otworzMiesiac}
           waluta={waluta}
         />
       ))}

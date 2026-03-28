@@ -2,9 +2,9 @@ import { formatWaluta } from '../../utils/waluty'
 
 export default function FinancialOverview({ obliczenia, waluta }) {
   return (
-    <div className="panel">
-      <div className="panel-header">PRZEGLĄD FINANSOWY</div>
-      <table className="table-base">
+    <div className="karta">
+      <div className="karta-naglowek">PRZEGLĄD FINANSOWY</div>
+      <table className="tabela">
         <thead>
           <tr>
             <th>KATEGORIA</th>
@@ -14,13 +14,13 @@ export default function FinancialOverview({ obliczenia, waluta }) {
           </tr>
         </thead>
         <tbody>
-          {obliczenia.danePrzegladuFinansowego.map((row, idx) => (
+          {obliczenia.danePrzegladu.map((wiersz, idx) => (
             <tr key={idx}>
-              <td>{row.kategoria}</td>
-              <td>{formatWaluta(row.planowane, waluta)}</td>
-              <td>{formatWaluta(row.rzeczywiste, waluta)}</td>
-              <td className={row.roznica >= 0 ? 'positive' : 'negative'}>
-                {row.roznica >= 0 ? '+' : ''}{formatWaluta(row.roznica, waluta)}
+              <td>{wiersz.kategoria}</td>
+              <td>{formatWaluta(wiersz.planowane, waluta)}</td>
+              <td>{formatWaluta(wiersz.rzeczywiste, waluta)}</td>
+              <td className={wiersz.roznica >= 0 ? 'dodatnie' : 'ujemne'}>
+                {wiersz.roznica >= 0 ? '+' : ''}{formatWaluta(wiersz.roznica, waluta)}
               </td>
             </tr>
           ))}
@@ -28,7 +28,7 @@ export default function FinancialOverview({ obliczenia, waluta }) {
         <tfoot>
           <tr>
             <td colSpan="2" style={{ textAlign: 'right' }}>Środki Pozostałe:</td>
-            <td className={obliczenia.doWydania >= 0 ? 'positive' : 'negative'}>
+            <td className={obliczenia.doWydania >= 0 ? 'dodatnie' : 'ujemne'}>
               {obliczenia.doWydania >= 0 ? '+' : ''}{formatWaluta(obliczenia.doWydania, waluta)}
             </td>
             <td></td>
