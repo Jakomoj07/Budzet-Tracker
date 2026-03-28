@@ -424,7 +424,7 @@ Ten budżet-tracker rozwijałem iteracyjnie: najpierw struktura danych i podstaw
 
 ## 👤 Autor
 
-Stworzone przez: **Jakub**
+Stworzone przez: **Jakomoj07**
 
 Podziękowania dla społeczności open source.
 
